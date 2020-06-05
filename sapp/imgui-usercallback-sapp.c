@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 #include "sokol_app.h"
 #include "sokol_gfx.h"
+#include "sokol_glue.h"
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
@@ -80,14 +81,7 @@ static uint16_t cube_indices[] = {
 void init(void) {
     // setup sokol-gfx, sokol-imgui and sokol-gl
     sg_setup(&(sg_desc){
-        .mtl_device = sapp_metal_get_device(),
-        .mtl_renderpass_descriptor_cb = sapp_metal_get_renderpass_descriptor,
-        .mtl_drawable_cb = sapp_metal_get_drawable,
-        .d3d11_device = sapp_d3d11_get_device(),
-        .d3d11_device_context = sapp_d3d11_get_device_context(),
-        .d3d11_render_target_view_cb = sapp_d3d11_get_render_target_view,
-        .d3d11_depth_stencil_view_cb = sapp_d3d11_get_depth_stencil_view,
-        .gl_force_gles2 = sapp_gles2()
+        .context = sapp_sgcontext()
     });
     simgui_setup(&(simgui_desc_t){ 0 });
     sgl_setup(&(sgl_desc_t){ 0 });
@@ -149,6 +143,7 @@ void init(void) {
 
 // an ImGui draw callback to render directly with sokol-gfx
 void draw_scene_1(const ImDrawList* dl, const ImDrawCmd* cmd) {
+    (void)dl;
 
     // first set the viewport rectangle to render in, same as
     // the ImGui draw command's clip rect
@@ -224,6 +219,7 @@ static void cube_sgl(void) {
 
 // another ImGui draw callback to render via sokol-gl
 void draw_scene_2(const ImDrawList* dl, const ImDrawCmd* cmd) {
+    (void)dl;
 
     const int cx = (int) cmd->ClipRect.x;
     const int cy = (int) cmd->ClipRect.y;
@@ -313,6 +309,7 @@ void input(const sapp_event * ev) {
 }
 
 sapp_desc sokol_main(int argc, char* argv[]) {
+    (void)argc; (void)argv;
     return (sapp_desc) {
         .init_cb = init,
         .frame_cb = frame,

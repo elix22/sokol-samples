@@ -8,15 +8,13 @@
 #include "sokol_gfx.h"
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+    (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
     /* setup the D3D11 app wrapper */
     d3d11_init(640, 480, 1, L"Sokol Clear D3D11");
 
     /* setup sokol */
     sg_setup(&(sg_desc){
-        .d3d11_device = d3d11_device(),
-        .d3d11_device_context = d3d11_device_context(),
-        .d3d11_render_target_view_cb = d3d11_render_target_view,
-        .d3d11_depth_stencil_view_cb = d3d11_depth_stencil_view
+        .context = d3d11_get_context()
     });
 
     /* initial pass action: clear to red */

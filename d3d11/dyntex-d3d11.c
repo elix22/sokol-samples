@@ -15,28 +15,24 @@ typedef struct {
 } vs_params_t;
 
 /* width/height must be 2^N */
-enum {
-    IMAGE_WIDTH = 64,
-    IMAGE_HEIGHT = 64,
-    LIVING  = 0xFFFFFFFF,
-    DEAD = 0xFF000000
-};
+#define IMAGE_WIDTH (64)
+#define IMAGE_HEIGHT (64)
+#define LIVING (0xFFFFFFFF)
+#define DEAD (0xFF000000)
 static uint32_t pixels[IMAGE_WIDTH][IMAGE_HEIGHT];
 
 static void game_of_life_init();
 static void game_of_life_update();
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+    (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
     /* setup d3d11 app wrapper and sokol_gfx */
     const int width = 800;
     const int height = 600;
     const int sample_count = 4;
     d3d11_init(width, height, sample_count, L"Sokol Array Texture D3D11");
     sg_setup(&(sg_desc){
-        .d3d11_device = d3d11_device(),
-        .d3d11_device_context = d3d11_device_context(),
-        .d3d11_render_target_view_cb = d3d11_render_target_view,
-        .d3d11_depth_stencil_view_cb = d3d11_depth_stencil_view
+        .context = d3d11_get_context()
     });
 
     /* a 128x128 image with streaming-update strategy */
@@ -164,7 +160,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
         },
         .rasterizer = {
             .cull_mode = SG_CULLMODE_BACK,
-            .sample_count = sample_count
         }
     });
 

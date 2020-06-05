@@ -13,11 +13,15 @@
 #include "sokol_app.h"
 #include "sokol_audio.h"
 #include "sokol_fetch.h"
+#include "sokol_glue.h"
 #include "dbgui/dbgui.h"
 #include "cgltf-sapp.glsl.h"
 #include "basisu/basisu_sokol.h"
 #define CGLTF_IMPLEMENTATION
 #define _CRT_SECURE_NO_WARNINGS
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "cgltf/cgltf.h"
 #include <assert.h>
 
@@ -26,8 +30,6 @@
 #endif
 
 static const char* filename = "DamagedHelmet.gltf";
-
-#define MSAA_SAMPLE_COUNT (4)
 
 #define SCENE_INVALID_INDEX (-1)
 #define SCENE_MAX_BUFFERS (16)
@@ -218,17 +220,10 @@ static vs_params_t vs_params_for_node(int node_index);
 static void init(void) {
     // setup sokol-gfx
     sg_setup(&(sg_desc){
-        .gl_force_gles2 = sapp_gles2(),
-        .mtl_device = sapp_metal_get_device(),
-        .mtl_renderpass_descriptor_cb = sapp_metal_get_renderpass_descriptor,
-        .mtl_drawable_cb = sapp_metal_get_drawable,
-        .d3d11_device = sapp_d3d11_get_device(),
-        .d3d11_device_context = sapp_d3d11_get_device_context(),
-        .d3d11_render_target_view_cb = sapp_d3d11_get_render_target_view,
-        .d3d11_depth_stencil_view_cb = sapp_d3d11_get_depth_stencil_view
+        .context = sapp_sgcontext()
     });
     // setup the optional debugging UI
-    __dbgui_setup(MSAA_SAMPLE_COUNT);
+    __dbgui_setup(sapp_sample_count());
 
     // initialize Basis Universal
     sbasisu_setup();
@@ -929,7 +924,6 @@ static int create_sg_pipeline_for_gltf_primitive(const cgltf_data* gltf, const c
             .rasterizer = {
                 .cull_mode = SG_CULLMODE_BACK,
                 .face_winding = SG_FACEWINDING_CCW,
-                .sample_count = MSAA_SAMPLE_COUNT,
             }
         });
         state.scene.num_pipelines++;
@@ -994,6 +988,8 @@ static vs_params_t vs_params_for_node(int node_index) {
 }
 
 sapp_desc sokol_main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
     return (sapp_desc){
         .init_cb = init,
         .frame_cb = frame,
@@ -1001,7 +997,7 @@ sapp_desc sokol_main(int argc, char* argv[]) {
         .event_cb = __dbgui_event,
         .width = 800,
         .height = 600,
-        .sample_count = MSAA_SAMPLE_COUNT,
+        .sample_count = 4,
         .window_title = "GLTF Viewer",
     };
 }

@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "sokol_gfx.h"
 #include "sokol_app.h"
+#include "sokol_glue.h"
 #include "imgui.h"
 #define SOKOL_IMGUI_IMPL
 #include "sokol_imgui.h"
@@ -187,14 +188,7 @@ static state_t state;
 
 static void init(void) {
     sg_desc desc = { };
-    desc.gl_force_gles2 = sapp_gles2();
-    desc.mtl_device = sapp_metal_get_device();
-    desc.mtl_renderpass_descriptor_cb = sapp_metal_get_renderpass_descriptor;
-    desc.mtl_drawable_cb = sapp_metal_get_drawable;
-    desc.d3d11_device = sapp_d3d11_get_device();
-    desc.d3d11_device_context = sapp_d3d11_get_device_context();
-    desc.d3d11_render_target_view_cb = sapp_d3d11_get_render_target_view;
-    desc.d3d11_depth_stencil_view_cb = sapp_d3d11_get_depth_stencil_view;
+    desc.context = sapp_sgcontext();
     sg_setup(&desc);
 
     simgui_desc_t simgui_desc = { };
@@ -293,7 +287,7 @@ static void draw_event_info_panel(sapp_event_type type, float width, float heigh
     if (is_touch_event(type)) {
         ImGui::Text("num touches:  %d", ev.num_touches);
         for (int i = 0; i < ev.num_touches; i++) {
-            ImGui::Text(" %d id:      0x%lX", i, ev.touches[i].identifier);
+            ImGui::Text(" %d id:      0x%X", i, (uint32_t) ev.touches[i].identifier);
             ImGui::Text(" %d pos:     %4.2f %4.2f", i, ev.touches[i].pos_x, ev.touches[i].pos_y);
             ImGui::Text(" %d changed: %s", i, ev.touches[i].changed ? "true":"false");
         }
@@ -348,6 +342,8 @@ static void cleanup(void) {
 }
 
 sapp_desc sokol_main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
     sapp_desc desc = { };
     desc.init_cb = init;
     desc.frame_cb = frame;

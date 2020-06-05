@@ -23,17 +23,15 @@ enum { NUM_BLEND_FACTORS = 15 };
 static sg_pipeline pips[NUM_BLEND_FACTORS][NUM_BLEND_FACTORS];
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+    (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
     /* setup d3d11 app wrapper and sokol_gfx */
     const int WIDTH = 800;
     const int HEIGHT = 600;
-    const int MSAA_SAMPLES = 4;
-    d3d11_init(WIDTH, HEIGHT, MSAA_SAMPLES, L"Sokol Blend D3D11");
+    const int SAMPLE_COUNT = 4;
+    d3d11_init(WIDTH, HEIGHT, SAMPLE_COUNT, L"Sokol Blend D3D11");
     sg_setup(&(sg_desc){
         .pipeline_pool_size = NUM_BLEND_FACTORS * NUM_BLEND_FACTORS + 1,
-        .d3d11_device = d3d11_device(),
-        .d3d11_device_context = d3d11_device_context(),
-        .d3d11_render_target_view_cb = d3d11_render_target_view,
-        .d3d11_depth_stencil_view_cb = d3d11_depth_stencil_view
+        .context = d3d11_get_context()
     });
 
     /* a quad vertex buffer */
@@ -136,8 +134,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     };
     for (int src = 0; src < NUM_BLEND_FACTORS; src++) {
         for (int dst = 0; dst < NUM_BLEND_FACTORS; dst++) {
-            const sg_blend_factor src_blend = (sg_blend_factor) (src+1);
-            const sg_blend_factor dst_blend = (sg_blend_factor) (dst+1);
             pip_desc.blend.src_factor_rgb = (sg_blend_factor) (src + 1);
             pip_desc.blend.dst_factor_rgb = (sg_blend_factor) (dst + 1);
             pip_desc.blend.src_factor_alpha = SG_BLENDFACTOR_ONE;

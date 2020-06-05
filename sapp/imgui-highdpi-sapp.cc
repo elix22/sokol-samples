@@ -7,6 +7,7 @@
 #include "sokol_app.h"
 #include "sokol_gfx.h"
 #include "sokol_time.h"
+#include "sokol_glue.h"
 #include "imgui.h"
 #include "imgui_font.h"
 #define SOKOL_IMGUI_IMPL
@@ -22,14 +23,7 @@ static sg_pass_action pass_action;
 void init(void) {
     // setup sokol-gfx and sokol-time
     sg_desc desc = { };
-    desc.mtl_device = sapp_metal_get_device();
-    desc.mtl_renderpass_descriptor_cb = sapp_metal_get_renderpass_descriptor;
-    desc.mtl_drawable_cb = sapp_metal_get_drawable;
-    desc.d3d11_device = sapp_d3d11_get_device();
-    desc.d3d11_device_context = sapp_d3d11_get_device_context();
-    desc.d3d11_render_target_view_cb = sapp_d3d11_get_render_target_view;
-    desc.d3d11_depth_stencil_view_cb = sapp_d3d11_get_depth_stencil_view;
-    desc.gl_force_gles2 = sapp_gles2();
+    desc.context = sapp_sgcontext();
     sg_setup(&desc);
 
     // setup sokol-imgui, but provide our own font
@@ -84,7 +78,7 @@ void frame(void) {
     ImGui::ColorEdit3("clear color", &pass_action.colors[0].val[0]);
     if (ImGui::Button("Test Window")) show_test_window ^= 1;
     if (ImGui::Button("Another Window")) show_another_window ^= 1;
-    ImGui::Text("NOTE: programmatic quit isn't supported on web and mobile");
+    ImGui::Text("NOTE: programmatic quit isn't supported on mobile");
     if (ImGui::Button("Soft Quit")) {
         sapp_request_quit();
     }
@@ -93,6 +87,9 @@ void frame(void) {
     }
     if (ImGui::Checkbox("HTML5 Ask Leave Site", &html5_ask_leave_site)) {
         sapp_html5_ask_leave_site(html5_ask_leave_site);
+    }
+    if (ImGui::Button(sapp_is_fullscreen() ? "Switch to windowed" : "Switch to fullscreen")) {
+        sapp_toggle_fullscreen();
     }
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -153,6 +150,8 @@ void input(const sapp_event* event) {
 }
 
 sapp_desc sokol_main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
     sapp_desc desc = { };
     desc.init_cb = init;
     desc.frame_cb = frame;

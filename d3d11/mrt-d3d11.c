@@ -24,15 +24,13 @@ typedef struct {
 } params_t;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+    (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
     /* setup d3d11 app wrapper and sokol_gfx */
     const int width = 800;
     const int height = 600;
     d3d11_init(width, height, 1, L"Sokol MRT D3D11");
     sg_setup(&(sg_desc){
-        .d3d11_device = d3d11_device(),
-        .d3d11_device_context = d3d11_device_context(),
-        .d3d11_render_target_view_cb = d3d11_render_target_view,
-        .d3d11_depth_stencil_view_cb = d3d11_depth_stencil_view
+        .context = d3d11_get_context()
     });
 
 

@@ -12,6 +12,7 @@
 #endif
 #include "sokol_gfx.h"
 #include "sokol_app.h"
+#include "sokol_glue.h"
 #include "microui/microui.h"
 #include "microui/atlas.inl"
 #define SOKOL_GL_IMPL
@@ -52,6 +53,7 @@ static void r_set_clip_rect(mu_Rect rect);
 
 /* callbacks */
 static int text_width_cb(mu_Font font, const char* text, int len) {
+    (void)font;
     if (len == -1) {
         len = (int) strlen(text);
     }
@@ -59,6 +61,7 @@ static int text_width_cb(mu_Font font, const char* text, int len) {
 }
 
 static int text_height_cb(mu_Font font) {
+    (void)font;
     return r_get_text_height();
 }
 
@@ -75,14 +78,7 @@ static void write_log(const char* text) {
 static void init(void) {
     /* setup sokol-gfx */
     sg_setup(&(sg_desc){
-        .gl_force_gles2 = sapp_gles2(),
-        .mtl_device = sapp_metal_get_device(),
-        .mtl_renderpass_descriptor_cb = sapp_metal_get_renderpass_descriptor,
-        .mtl_drawable_cb = sapp_metal_get_drawable,
-        .d3d11_device = sapp_d3d11_get_device(),
-        .d3d11_device_context = sapp_d3d11_get_device_context(),
-        .d3d11_render_target_view_cb = sapp_d3d11_get_render_target_view,
-        .d3d11_depth_stencil_view_cb = sapp_d3d11_get_depth_stencil_view,
+        .context = sapp_sgcontext()
     });
     __cdbgui_setup(1);
 
@@ -164,7 +160,7 @@ void frame(void) {
         }
     }
     r_end();
-    
+
     /* render the sokol-gfx default pass */
     sg_begin_default_pass(&(sg_pass_action){
             .colors[0] = {
@@ -383,6 +379,7 @@ static void style_window(mu_Context *ctx) {
 }
 
 sapp_desc sokol_main(int argc, char* argv[]) {
+    (void)argc; (void)argv;
     return (sapp_desc){
         .init_cb = init,
         .frame_cb = frame,
@@ -401,7 +398,7 @@ static sgl_pipeline pip;
 
 static void r_init(void) {
 
-    /* atlas image data is in atlas.inl file, this only contains alpha 
+    /* atlas image data is in atlas.inl file, this only contains alpha
        values, need to expand this to RGBA8
     */
     uint32_t rgba8_size = ATLAS_WIDTH * ATLAS_HEIGHT * 4;
