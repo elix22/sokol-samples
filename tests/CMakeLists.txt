@@ -10,6 +10,7 @@ fips_begin_app(sokol-test cmdline)
         sokol-gl-test.c
         sokol-fetch-test.c
         sokol-debugtext-test.c
+        sokol-shape-test.c
         sokol-test.c
     )
     fips_dir(assets)
@@ -39,7 +40,7 @@ if (FIPS_OSX)
             endif()
         endif()
     fips_end_app()
-else()
+elseif (NOT FIPS_UWP)
     fips_begin_app(cpp-compile-test cmdline)
         fips_vs_warning_level(4)
         fips_files(cpp-compile-test.cc)
@@ -48,7 +49,7 @@ else()
         if (FIPS_ANDROID)
             fips_libs(GLESv3 EGL OpenSLES log android)
         elseif (FIPS_LINUX)
-            fips_libs(X11 GL m dl asound)
+            fips_libs(X11 Xi Xcursor GL m dl asound)
         endif()
     fips_end_app()
 endif()

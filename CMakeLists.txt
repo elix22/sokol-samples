@@ -4,7 +4,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(sokol-samples)
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 14)
+if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+    set(CMAKE_CXX_STANDARD 17)
+else()
+    set(CMAKE_CXX_STANDARD 14)
+endif()
 
 if (SOKOL_USE_WGPU_DAWN)
     set(USE_DAWN_SDK ON)
@@ -21,7 +25,9 @@ if (NOT USE_SOKOL_APP AND NOT SOKOL_USE_WGPU_DAWN AND NOT SOKOL_USE_D3D11 AND NO
 endif()
 fips_import_fips_imgui_imgui()
 fips_import_fips_cimgui_cimgui()
-fips_import_fips_libmodplug_libmodplug()
+if (NOT FIPS_UWP)
+    fips_import_fips_libmodplug_libmodplug()
+endif()
 fips_ide_group("")
 
 # just suppress this pesky "missing field initializer warning" for now

@@ -11,10 +11,12 @@ Minimal 8-bit emulators using the sokol headers: https://floooh.github.io/tiny8b
 |Platform|Build Status|
 |--------|------|
 |GH Actions (OSX/Linux/Win+VS2019/iOS/WASM/Android)|[![Build Status](https://github.com/floooh/sokol-samples/workflows/build_and_test/badge.svg)](https://github.com/floooh/sokol-samples/actions)|
-|Travis (OSX/Linux/Win,VS2017)|[![Build Status](https://travis-ci.org/floooh/sokol-samples.svg?branch=master)](https://travis-ci.org/floooh/sokol-samples)|
 |AppVeyor (Windows,VS2015)|[![Build status](https://ci.appveyor.com/api/projects/status/3jxh6gi272i5jd84/branch/master?svg=true)](https://ci.appveyor.com/project/floooh/sokol-samples/branch/master)|
 
 ## What's New:
+
+- **23-Sep-2020**: samples can now be built for UWP using the ```sapp-uwp-vstudio-debug``` and ```sapp-uwp-vstudio-release``` build configs
+  NOTE that fips support for UWP built apps is incomplete (e.g. ```fips run``` doesn't work, and UWP app bundle creation is also not supported)
 
 - **27-May-2020**: four new test and demonstration samples for the new sokol_debugtext.h header
 
@@ -82,8 +84,10 @@ steps to udpate:
 Make sure that the following tools are in the path. Exact versions shouldn't
 matter:
 ```
+> git --version
+2.x.x (any version should do)
 > python --version
-Python 2.7.10 (3.x works too)
+Python 3.x (2.x should still work too)
 > cmake --version
 cmake version 3.8.2 (or later)
 # make is only needed for building through emscripten
@@ -91,7 +95,7 @@ cmake version 3.8.2 (or later)
 GNU Make 3.81
 # on OSX (on Windows you just need a recent VS)
 > xcodebuild -version
-Xcode 9.0
+Xcode 10.x (or later)
 ```
 
 ### Building the platform-specific samples
@@ -106,7 +110,7 @@ header in the folder ```sapp```.
 ```
 > mkdir ~/scratch
 > cd ~/scratch
-> git clone git@github.com:floooh/sokol-samples
+> git clone https://github.com/floooh/sokol-samples
 > cd sokol-samples
 > ./fips build
 ...
@@ -221,6 +225,8 @@ which matches your platform and build system:
   ...
   sapp-win64-vstudio-debug
   sapp-win64-vstudio-release
+  sapp-uwp-vstudio-debug
+  sapp-uwp-vstudio-release
 > ./fips set config sapp-...
 > ./fips build
 > ./fips list targets
@@ -229,11 +235,17 @@ which matches your platform and build system:
 
 Note the following caveats:
 - for HTML5, first install the emscripten SDK as described above in the
-native HTML5 sample section
+  native HTML5 sample section
 - for iOS, set the developer team id, as described above in the iOS section
 - OpenGL is currently not supported on MacOS because NSOpenGLView and
-friends are broken on the MacOS Mojave beta, instead use the
-```sapp-metal-*``` build configs (GLES on iOS is supported though)
+  friends are broken on the MacOS Mojave beta, instead use the
+  ```sapp-metal-*``` build configs (GLES on iOS is supported though)
+- for UWP you need a bleeding edge Visual Studio and Windows SDK version
+  (at least VS2019 and SDK 10.0.19041.0)
+- fips build support for UWP is incomplete, you only get "raw" UWP
+  executables out of the build process, but not packaged and signed application
+  bundles. This is enough for running and debugging the samples inside
+  Visual Studio, but not for much else.
 
 ## How to build without a build system
 
