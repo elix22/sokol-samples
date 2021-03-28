@@ -4,14 +4,11 @@
 //  This demonstrates the SOKOL_NO_ENTRY mode of sokol_app.h, in this mode
 //  sokol_app.h doesn't "hijack" the platform's main() function instead the
 //  application must provide this. The sokol_app.h implementation must be
-//  compiled with the SOKOL_NO_ENTRY define (see sokol-noentry.c/.m, 
+//  compiled with the SOKOL_NO_ENTRY define (see sokol-noentry.c/.m,
 //  which is compiled into a static link lib sokol-noentry)
 //
 //  This sample also demonstrates the optional user-data callbacks.
 //------------------------------------------------------------------------------
-#if !defined(_WIN32)
-#error "noentry-dll-sapp sample currently only implemented for Windows"
-#endif
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
@@ -19,9 +16,11 @@
 #include "sokol_gfx.h"
 #include "sokol_app.h"
 #include "sokol_glue.h"
-#include <Windows.h>    /* WinMain */
 #include <stdlib.h>     /* calloc, free */
 #include "noentry-dll-sapp.glsl.h"
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
 
 typedef struct {
     float rx, ry;
@@ -35,10 +34,14 @@ void frame(void* user_data);
 void cleanup(void);
 
 /* don't provide a sokol_main() callback, instead the platform's standard main() function */
+#if defined(_WIN32)
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nCmdShow;
+#else
+int main() {
+#endif
     app_state_t* state = calloc(1, sizeof(app_state_t));
-    int exit_code = sapp_run(&(sapp_desc){
+    sapp_run(&(sapp_desc){
         .user_data = state,
         .init_userdata_cb = init,
         .frame_userdata_cb = frame,
@@ -50,7 +53,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
         .window_title = "Noentry DLL (sokol-app)",
     });
     free(state);    /* NOTE: on some platforms, this isn't reached on exit */
-    return exit_code;
+    return 0;
 }
 
 void init(void* user_data) {
@@ -92,8 +95,7 @@ void init(void* user_data) {
          1.0,  1.0, -1.0,   0.5, 1.0, 0.5, 1.0
     };
     sg_buffer vbuf = sg_make_buffer(&(sg_buffer_desc){
-        .size = sizeof(vertices),
-        .content = vertices,
+        .data = SG_RANGE(vertices)
     });
 
     /* create an index buffer for the cube */
@@ -107,12 +109,11 @@ void init(void* user_data) {
     };
     sg_buffer ibuf = sg_make_buffer(&(sg_buffer_desc){
         .type = SG_BUFFERTYPE_INDEXBUFFER,
-        .size = sizeof(indices),
-        .content = indices,
+        .data = SG_RANGE(indices)
     });
 
     /* create shader */
-    sg_shader shd = sg_make_shader(noentry_shader_desc());
+    sg_shader shd = sg_make_shader(noentry_shader_desc(sg_query_backend()));
 
     /* create pipeline object */
     state->pip = sg_make_pipeline(&(sg_pipeline_desc){
@@ -126,11 +127,11 @@ void init(void* user_data) {
         },
         .shader = shd,
         .index_type = SG_INDEXTYPE_UINT16,
-        .depth_stencil = {
-            .depth_compare_func = SG_COMPAREFUNC_LESS_EQUAL,
-            .depth_write_enabled = true,
+        .depth = {
+            .compare = SG_COMPAREFUNC_LESS_EQUAL,
+            .write_enabled = true,
         },
-        .rasterizer.cull_mode = SG_CULLMODE_BACK,
+        .cull_mode = SG_CULLMODE_BACK,
     });
 
     /* setup resource bindings */
@@ -155,12 +156,12 @@ void frame(void* user_data) {
     vs_params.mvp = HMM_MultiplyMat4(view_proj, model);
 
     sg_pass_action pass_action = {
-        .colors[0] = { .action = SG_ACTION_CLEAR, .val = { 0.5f, 0.25f, 0.75f, 1.0f } }
+        .colors[0] = { .action = SG_ACTION_CLEAR, .value = { 0.5f, 0.25f, 0.75f, 1.0f } }
     };
     sg_begin_default_pass(&pass_action, (int)w, (int)h);
     sg_apply_pipeline(state->pip);
     sg_apply_bindings(&state->bind);
-    sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, &vs_params, sizeof(vs_params));
+    sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, &SG_RANGE(vs_params));
     sg_draw(0, 36, 1);
     sg_end_pass();
     sg_commit();
