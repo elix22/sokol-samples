@@ -33,6 +33,7 @@ samples = [
     [ 'sdf', 'sdf-sapp.c', 'sdf-sapp.glsl'],
     [ 'shadows', 'shadows-sapp.c', 'shadows-sapp.glsl'],
     [ 'imgui', 'imgui-sapp.cc', None ],
+    [ 'imgui-dock', 'imgui-dock-sapp.cc', None ],
     [ 'imgui-highdpi', 'imgui-highdpi-sapp.cc', None ],
     [ 'cimgui', 'cimgui-sapp.c', None ],
     [ 'imgui-usercallback', 'imgui-usercallback-sapp.c', 'imgui-usercallback-sapp.glsl'],
@@ -44,6 +45,7 @@ samples = [
     [ 'debugtext-userfont', 'debugtext-userfont-sapp.c', None],
     [ 'debugtext-context', 'debugtext-context-sapp.c', 'debugtext-context-sapp.glsl'],
     [ 'events', 'events-sapp.cc', None],
+    [ 'icon', 'icon-sapp.c', None ],
     [ 'droptest', 'droptest-sapp.c', None],
     [ 'pixelformats', 'pixelformats-sapp.c', None],
     [ 'pixelformats-gles2', 'pixelformats-sapp.c', None],
@@ -55,7 +57,9 @@ samples = [
     [ 'sgl-lines', 'sgl-lines-sapp.c', None ],
     [ 'loadpng', 'loadpng-sapp.c', 'loadpng-sapp.glsl'],
     [ 'plmpeg', 'plmpeg-sapp.c', 'plmpeg-sapp.glsl'],
-    [ 'cgltf', 'cgltf-sapp.c', 'cgltf-sapp.glsl']
+    [ 'cgltf', 'cgltf-sapp.c', 'cgltf-sapp.glsl'],
+    [ 'ozz-anim', 'ozz-anim-sapp.cc', None ],
+    [ 'ozz-skin', 'ozz-skin-sapp.cc', 'ozz-skin-sapp.glsl']
 ]
 
 # assets that must also be copied
@@ -73,7 +77,12 @@ assets = [
     "DroidSerif-Regular.ttf",
     "DroidSerif-Italic.ttf",
     "DroidSerif-Bold.ttf",
-    "DroidSansJapanese.ttf"
+    "DroidSansJapanese.ttf",
+    "ozz_anim_skeleton.ozz",
+    "ozz_anim_animation.ozz",
+    "ozz_skin_skeleton.ozz",
+    "ozz_skin_animation.ozz",
+    "ozz_skin_mesh.ozz"
 ]
 
 # webpage template arguments
@@ -154,6 +163,8 @@ def deploy_webpage(fips_dir, proj_dir, webpage_dir) :
         src_path = '{}/{}'.format(wasm_deploy_dir, asset)
         if os.path.isfile(src_path):
             shutil.copy(src_path, webpage_dir)
+        else:
+            log.warn('!!! file {} not found!'.format(src_path))
 
     # copy the screenshots
     for sample in samples :

@@ -1,6 +1,5 @@
 # select the 3D backend for sokol_gfx.h and sokol_app.h
-# the sokol_config() macro is in the top-level CMakeLists.txt file!
-sokol_config()
+add_definitions(-D${sokol_backend})
 
 fips_ide_group(Samples)
 fips_begin_app(clear-sapp windowed)
@@ -300,6 +299,17 @@ fips_begin_app(imgui-sapp windowed)
 fips_end_app()
 
 fips_ide_group(Samples)
+fips_begin_app(imgui-dock-sapp windowed)
+    fips_vs_warning_level(3)
+    fips_files(imgui-dock-sapp.cc)
+    # use sokol-cpp for testing here, this isn't required though
+    fips_deps(sokol-cpp imgui-dock)
+    if (FIPS_IOS)
+        fips_files(ios-info.plist)
+    endif()
+fips_end_app()
+
+fips_ide_group(Samples)
 fips_begin_app(imgui-highdpi-sapp windowed)
     fips_vs_warning_level(3)
     fips_files(imgui-highdpi-sapp.cc)
@@ -553,6 +563,13 @@ fips_begin_app(saudio-sapp windowed)
     endif()
 fips_end_app()
 
+fips_ide_group(Samples)
+fips_begin_app(icon-sapp windowed)
+    fips_vs_warning_level(3)
+    fips_files(icon-sapp.c)
+    fips_deps(sokol)
+fips_end_app()
+
 if (NOT FIPS_UWP)
 fips_ide_group(Samples)
 fips_begin_app(droptest-sapp windowed)
@@ -664,6 +681,24 @@ fips_begin_app(loadpng-sapp-ui windowed)
 fips_end_app()
 target_compile_definitions(loadpng-sapp-ui PRIVATE USE_DBG_UI)
 
+fips_ide_group(Samples)
+fips_begin_app(ozz-anim-sapp windowed)
+    fips_vs_warning_level(3)
+    fips_files(ozz-anim-sapp.cc)
+    fips_dir(data)
+    fipsutil_copy(ozz-anim-assets.yml)
+    fips_deps(sokol ozzanim imgui)
+fips_end_app()
+fips_begin_app(ozz-skin-sapp windowed)
+    fips_vs_warning_level(3)
+    fips_files(ozz-skin-sapp.cc)
+    sokol_shader(ozz-skin-sapp.glsl ${slang})
+    fips_dir(data)
+    fipsutil_copy(ozz-skin-assets.yml)
+    fips_deps(sokol ozzanim imgui)
+fips_end_app()
+
+
 if (NOT FIPS_ANDROID)
 fips_ide_group(Samples)
 fips_begin_app(noentry-sapp windowed)
@@ -685,5 +720,3 @@ fips_end_app()
 endif()
 
 endif() # FIPS_UWP
-
-

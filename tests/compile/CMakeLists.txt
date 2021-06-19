@@ -20,27 +20,39 @@ macro(add_system_libs)
     endif()
 endmacro()
 
+set(c_common_sources
+    sokol_gfx.c
+    sokol_time.c
+    sokol_args.c
+    sokol_audio.c
+    sokol_debugtext.c
+    sokol_gl.c
+    sokol_fontstash.c
+    sokol_imgui.c
+    sokol_gfx_imgui.c
+    sokol_shape.c
+    sokol_nuklear.c
+    sokol_main.c)
+
+set(cc_common_sources
+    sokol_gfx.cc
+    sokol_time.cc
+    sokol_args.cc
+    sokol_audio.cc
+    sokol_debugtext.cc
+    sokol_gl.cc
+    sokol_fontstash.cc
+    sokol_imgui.cc
+    sokol_gfx_imgui.cc
+    sokol_shape.cc
+    sokol_main.cc)
+
 # test compiling the implementations as C/ObjC
 if (NOT FIPS_UWP)
 
-fips_begin_app(sokol_compiletest_c windowed)
+fips_begin_app(sokol-compiletest-c windowed)
     fips_vs_warning_level(4)
-    fips_files(
-        sokol_app.c
-        sokol_gfx.c
-        sokol_glue.c
-        sokol_time.c
-        sokol_args.c
-        sokol_audio.c
-        sokol_debugtext.c
-        sokol_gl.c
-        sokol_fontstash.c
-        sokol_imgui.c
-        sokol_gfx_imgui.c
-        sokol_shape.c
-        sokol_nuklear.c
-        sokol_main.c
-    )
+    fips_files(sokol_app.c sokol_glue.c ${c_common_sources})
     if (NOT FIPS_ANDROID AND NOT FIPS_UWP)
         fips_files(sokol_fetch.c)
     endif()
@@ -48,29 +60,28 @@ fips_begin_app(sokol_compiletest_c windowed)
     fips_deps(cimgui nuklear)
     add_system_libs()
 fips_end_app()
+target_compile_definitions(sokol-compiletest-c PUBLIC ${sokol_backend})
 if (FIPS_OSX)
-    target_compile_options(sokol_compiletest_c PUBLIC -x objective-c)
+    target_compile_options(sokol-compiletest-c PUBLIC -x objective-c)
 endif()
+
+# test compiling with dummy backend
+fips_begin_app(sokol-compiletest-dummy cmdline)
+    fips_vs_warning_level(4)
+    fips_files(${c_common_sources})
+    if (NOT FIPS_ANDROID AND NOT FIPS_UWP)
+        fips_files(sokol_fetch.c)
+    endif()
+    fips_deps(cimgui nuklear)
+fips_end_app()
+target_compile_definitions(sokol-compiletest-dummy PUBLIC SOKOL_DUMMY_BACKEND)
+
 endif() # FIPS_UWP
 
 # test compiling implementations as C++/ObjC++
-fips_begin_app(sokol_compiletest_cc windowed)
+fips_begin_app(sokol-compiletest-cc windowed)
     fips_vs_warning_level(4)
-    fips_files(
-        sokol_app.cc
-        sokol_gfx.cc
-        sokol_glue.cc
-        sokol_time.cc
-        sokol_args.cc
-        sokol_audio.cc
-        sokol_debugtext.cc
-        sokol_gl.cc
-        sokol_fontstash.cc
-        sokol_imgui.cc
-        sokol_gfx_imgui.cc
-        sokol_shape.cc
-        sokol_main.cc
-    )
+    fips_files(sokol_app.cc sokol_glue.cc ${cc_common_sources})
     if (NOT FIPS_ANDROID AND NOT FIPS_UWP)
         fips_files(sokol_fetch.cc)
     endif()
@@ -78,6 +89,8 @@ fips_begin_app(sokol_compiletest_cc windowed)
     fips_deps(imgui)
     add_system_libs()
 fips_end_app()
+target_compile_definitions(sokol-compiletest-cc PUBLIC ${sokol_backend})
 if (FIPS_OSX)
-    target_compile_options(sokol_compiletest_cc PUBLIC -x objective-c++)
+    target_compile_options(sokol-compiletest-cc PUBLIC -x objective-c++)
 endif()
+
